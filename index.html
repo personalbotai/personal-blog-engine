@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Blog - Personal Blog Engine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        .post-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .post-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        .markdown-body {
+            line-height: 1.7;
+        }
+        .markdown-body h1, .markdown-body h2, .markdown-body h3 {
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+            font-weight: 700;
+            color: #e5e7eb;
+        }
+        .markdown-body p { margin-bottom: 1em; }
+        .markdown-body ul, .markdown-body ol { margin-bottom: 1em; padding-left: 1.5em; }
+        .markdown-body blockquote {
+            border-left: 4px solid #3b82f6;
+            padding-left: 1em;
+            color: #9ca3af;
+            font-style: italic;
+        }
+        .markdown-body code {
+            background: #1f2937;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9em;
+        }
+        .markdown-body pre {
+            background: #111827;
+            padding: 1em;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1em 0;
+        }
+        .markdown-body pre code {
+            background: transparent;
+            padding: 0;
+        }
+        .admin-panel {
+            position: fixed;
+            right: -400px;
+            top: 0;
+            width: 400px;
+            height: 100vh;
+            background: #1f2937;
+            box-shadow: -4px 0 15px rgba(0,0,0,0.5);
+            transition: right 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        .admin-panel.open { right: 0; }
+        .admin-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
+        }
+        .admin-overlay.open { display: block; }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen">
+    <!-- Header -->
+    <header class="bg-gray-800 border-b border-gray-700 sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-blog text-blue-500 text-2xl"></i>
+                    <h1 class="text-xl font-bold cursor-pointer" onclick="router('home')">My Blog</h1>
+                </div>
+                <nav class="hidden md:flex items-center space-x-6">
+                    <a href="#" onclick="router('home')" class="text-gray-300 hover:text-white transition">Home</a>
+                    <a href="#" onclick="router('about')" class="text-gray-300 hover:text-white transition">About</a>
+                    <button onclick="toggleAdmin()" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded transition text-sm">
+                        <i class="fas fa-cog mr-2"></i> Admin
+                    </button>
+                </nav>
+                <button class="md:hidden text-xl" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            <!-- Mobile Menu -->
+            <div id="mobile-menu" class="hidden md:hidden mt-4 space-y-2">
+                <a href="#" onclick="router('home')" class="block py-2 text-gray-300">Home</a>
+                <a href="#" onclick="router('about')" class="block py-2 text-gray-300">About</a>
+                <button onclick="toggleAdmin()" class="w-full text-left py-2 text-gray-300">
+                    <i class="fas fa-cog mr-2"></i> Admin
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main id="app" class="container mx-auto px-4 py-8">
+        <!-- Views will be rendered here -->
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 border-t border-gray-700 mt-12 py-8">
+        <div class="container mx-auto px-4 text-center text-gray-400 text-sm">
+            <p>&copy; 2026 My Blog. Built with ❤️ and Tailwind.</p>
+        </div>
+    </footer>
+
+    <!-- Admin Panel -->
+    <div id="admin-overlay" class="admin-overlay" onclick="toggleAdmin()"></div>
+    <div id="admin-panel" class="admin-panel">
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold"><i class="fas fa-cog mr-2"></i> Admin Panel</h2>
+                <button onclick="toggleAdmin()" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Posts Management -->
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold mb-4">Posts</h3>
+                <div id="posts-list-admin" class="space-y-3">
+                    <!-- Posts list -->
+                </div>
+                <button onclick="openPostEditor()" class="mt-4 w-full py-3 bg-blue-600 hover:bg-blue-700 rounded font-medium transition">
+                    <i class="fas fa-plus mr-2"></i> New Post
+                </button>
+            </div>
+
+            <!-- Post Editor -->
+            <div id="post-editor" class="hidden space-y-4">
+                <div>
+                    <label class="block text-sm text-gray-400 mb-1">Title</label>
+                    <input type="text" id="editor-title" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 focus:border-blue-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-400 mb-1">Slug</label>
+                    <input type="text" id="editor-slug" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 focus:border-blue-500 focus:outline-none font-mono text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-400 mb-1">Excerpt</label>
+                    <textarea id="editor-excerpt" rows="2" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 focus:border-blue-500 focus:outline-none text-sm"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-400 mb-1">Content (Markdown)</label>
+                    <textarea id="editor-content" rows="10" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 focus:border-blue-500 focus:outline-none font-mono text-sm"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-400 mb-1">Tags (comma separated)</label>
+                    <input type="text" id="editor-tags" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 focus:border-blue-500 focus:outline-none text-sm">
+                </div>
+                <div class="flex space-x-2">
+                    <button onclick="savePost()" class="flex-1 py-2 bg-green-600 hover:bg-green-700 rounded font-medium transition">
+                        <i class="fas fa-save mr-2"></i> Save
+                    </button>
+                    <button onclick="deleteCurrentPost()" id="btn-delete-post" class="hidden px-4 py-2 bg-red-600 hover:bg-red-700 rounded font-medium transition">
+                        <i class="fas fa-trash mr-2"></i> Delete
+                    </button>
+                    <button onclick="closePostEditor()" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded font-medium transition">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
