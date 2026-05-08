@@ -2,6 +2,13 @@
 
 A lightweight, client-side blog engine with Markdown support and admin panel.
 
+
+## 🚀 Live Demo
+
+Coba aplikasi secara langsung: [personal-blog-engine](https://personalbotai.github.io/personal-blog-engine/)
+
+[![Deploy to GitHub Pages](https://img.shields.io/badge/Deploy-GitHub%20Pages-blue?logo=github)](https://personalbotai.github.io/personal-blog-engine/)
+
 ## Features
 - Create, edit, delete posts via admin panel
 - Markdown rendering with syntax highlighting (highlight.js)
